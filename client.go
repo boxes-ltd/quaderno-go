@@ -22,7 +22,17 @@ func defaultUserAgent() string {
 	return userAgent
 }
 
+type noCopy struct{}
+
+func (*noCopy) Lock()   {}
+func (*noCopy) Unlock() {}
+
+type service struct {
+	client *Client
+}
+
 type Client struct {
+	noCopy     noCopy
 	apiKey     string
 	apiUrl     string
 	apiVersion string
@@ -57,10 +67,6 @@ func WithUserAgent(userAgent string) Option {
 	return func(c *Client) {
 		c.userAgent = userAgent
 	}
-}
-
-type service struct {
-	client *Client
 }
 
 func NewClient(apiKey, apiUrl string, opts ...Option) *Client {

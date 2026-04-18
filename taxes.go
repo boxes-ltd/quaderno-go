@@ -11,88 +11,125 @@ import (
 type Taxes service
 
 type TaxCalculateParams struct {
-	FromCountry    string      // Optional: The seller's country. 2-letter ISO country code. Defaults to the account's country.
-	FromPostalCode string      // Optional: The seller's ZIP or postal code. Defaults to the account's postal code.
-	ToCountry      string      // Required: The customer's country. 2-letter ISO country code.
-	ToPostalCode   string      // Optional: The customer's ZIP or postal code.
-	ToCity         string      // Optional: The customer's city. Recommended for US Sales Tax calculations.
-	ToStreet       string      // Optional: The customer's street address. Recommended for US Sales Tax calculations.
-	TaxID          string      // Optional: The customer's tax ID. Quaderno can validate VAT/GST numbers from the EU, United Kingdom, Switzerland, Québec (Canada), Australia, and New Zealand.
-	TaxCode        TaxCode     // Optional: The transaction's tax code. Tax codes can be obtained via GET /tax_codes. Defaults to the account's default tax code.
-	TaxBehavior    TaxBehavior // Optional: Specifies whether the price is considered inclusive of taxes or exclusive of taxes.
-	ProductType    ProductType // Optional: Specifies whether the product is a good or a service. Defaults to the account's default.
-	Date           string      // Optional: The transaction's date. Defaults to today.
-	Amount         *float64    // Optional: The transaction's amount.
-	Currency       string      // Optional: The transaction's currency. Three-letter ISO currency code, in uppercase. Defaults to the account's currency.
+	// Optional: The seller's country. 2-letter ISO country code. Defaults to the account's country.
+	FromCountry *string
+	// Optional: The seller's ZIP or postal code. Defaults to the account's postal code.
+	FromPostalCode *string
+	// Required: The customer's country. 2-letter ISO country code.
+	ToCountry *string
+	// Optional: The customer's ZIP or postal code.
+	ToPostalCode *string
+	// Optional: The customer's city. Recommended for US Sales Tax calculations.
+	ToCity *string
+	// Optional: The customer's street address. Recommended for US Sales Tax calculations.
+	ToStreet *string
+	// Optional: The customer's tax ID. Quaderno can validate VAT/GST numbers from the EU, United Kingdom, Switzerland,
+	// Québec (Canada), Australia, and New Zealand.
+	TaxID *string
+	// Optional: The transaction's tax code. Tax codes can be obtained via GET /tax_codes. Defaults to the account's
+	// default tax code.
+	TaxCode *TaxCode
+	// Optional: Specifies whether the price is considered inclusive of taxes or exclusive of taxes.
+	TaxBehavior *TaxBehavior
+	// Optional: Specifies whether the product is a good or a service. Defaults to the account's default.
+	ProductType *ProductType
+	// Optional: The transaction's date. Defaults to today.
+	Date *string
+	// Optional: The transaction's amount.
+	Amount *float64
+	// Optional: The transaction's currency. Three-letter ISO currency code, in uppercase. Defaults to the account's
+	// currency.
+	Currency *string
 }
 
 type TaxCalculateResponse struct {
-	Name                  string      `json:"name"`                    // Name of the tax.
-	Rate                  float64     `json:"rate"`                    // Tax rate applied.
-	TaxablePart           float64     `json:"taxable_part"`            // Percentage of the subtotal used for calculating the tax amount. It's usually 100% but there are a few exceptions. For example, in Texas the taxable base is 80% for SaaS products.
-	Country               string      `json:"country"`                 // Country used for the tax calculation.
-	Region                string      `json:"region"`                  // Region used for the tax calculation.
-	County                string      `json:"county"`                  // Tax county. Only for US sales tax.
-	City                  string      `json:"city"`                    // City used for the tax calculation.
-	TaxCode               string      `json:"tax_code"`                // The transaction's tax code used for calculating the tax rate.
-	TaxBehavior           TaxBehavior `json:"tax_behavior"`            // Whether the price was considered inclusive of taxes or exclusive of taxes.
-	TaxAmount             float64     `json:"tax_amount"`              // The tax amount.
-	Subtotal              float64     `json:"subtotal"`                // Price before taxes.
-	TotalAmount           float64     `json:"total_amount"`            // Total price, including taxes.
-	Status                TaxStatus   `json:"status"`                  // Tax calculation status.
-	Notice                string      `json:"notice"`                  // Help message complementing the tax calculation status.
-	AdditionalName        string      `json:"additional_name"`         // Only for jurisdictions that need to apply two tax rates (e.g. some Canadian provinces).
-	AdditionalRate        float64     `json:"additional_rate"`         // Only for jurisdictions that need to apply two tax rates (e.g. some Canadian provinces).
-	AdditionalTaxablePart float64     `json:"additional_taxable_part"` // Only for jurisdictions that need to apply two tax rates (e.g. some Canadian provinces).
-	AdditionalTaxAmount   float64     `json:"additional_tax_amount"`   // Only for jurisdictions that need to apply two tax rates (e.g. some Canadian provinces).
+	// Name of the tax.
+	Name *string `json:"name"`
+	// Tax rate applied.
+	Rate float64 `json:"rate"`
+	// Percentage of the subtotal used for calculating the tax amount. It's usually 100% but there are a few exceptions.
+	// For example, in Texas the taxable base is 80% for SaaS products.
+	TaxablePart *float64 `json:"taxable_part"`
+	// Country used for the tax calculation.
+	Country string `json:"country"`
+	// Region used for the tax calculation.
+	Region *string `json:"region"`
+	// Tax county. Only for US sales tax.
+	County *string `json:"county"`
+	// City used for the tax calculation.
+	City *string `json:"city"`
+	// The transaction's tax code used for calculating the tax rate.
+	TaxCode TaxCode `json:"tax_code"`
+	// Whether the price was considered inclusive of taxes or exclusive of taxes.
+	TaxBehavior TaxBehavior `json:"tax_behavior"`
+	// Whether the product is a good or a service.
+	ProductType ProductType `json:"product_type"`
+	// The tax amount.
+	TaxAmount *float64 `json:"tax_amount"`
+	// Price before taxes.
+	Subtotal *float64 `json:"subtotal"`
+	// Total price, including taxes.
+	TotalAmount *float64 `json:"total_amount"`
+	// Tax calculation status.
+	Status TaxStatus `json:"status"`
+	// Help message complementing the tax calculation status.
+	Notice *string `json:"notice"`
+	// Only for jurisdictions that need to apply two tax rates (e.g. some Canadian provinces).
+	AdditionalName *string `json:"additional_name"`
+	// Only for jurisdictions that need to apply two tax rates (e.g. some Canadian provinces).
+	AdditionalRate *float64 `json:"additional_rate"`
+	// Only for jurisdictions that need to apply two tax rates (e.g. some Canadian provinces).
+	AdditionalTaxablePart *float64 `json:"additional_taxable_part"`
+	// Only for jurisdictions that need to apply two tax rates (e.g. some Canadian provinces).
+	AdditionalTaxAmount *float64 `json:"additional_tax_amount"`
 }
 
 func (s *Taxes) Calculate(ctx context.Context, params *TaxCalculateParams) (*TaxCalculateResponse, error) {
 	if params == nil {
 		return nil, fmt.Errorf("params is required")
 	}
-	if params.ToCountry == "" {
+	if params.ToCountry == nil || *params.ToCountry == "" {
 		return nil, fmt.Errorf("to_country is required")
 	}
 
 	q := url.Values{}
-	q.Set("to_country", params.ToCountry)
+	q.Set("to_country", *params.ToCountry)
 
-	if params.FromCountry != "" {
-		q.Set("from_country", params.FromCountry)
+	if params.FromCountry != nil {
+		q.Set("from_country", *params.FromCountry)
 	}
-	if params.FromPostalCode != "" {
-		q.Set("from_postal_code", params.FromPostalCode)
+	if params.FromPostalCode != nil {
+		q.Set("from_postal_code", *params.FromPostalCode)
 	}
-	if params.ToPostalCode != "" {
-		q.Set("to_postal_code", params.ToPostalCode)
+	if params.ToPostalCode != nil {
+		q.Set("to_postal_code", *params.ToPostalCode)
 	}
-	if params.ToCity != "" {
-		q.Set("to_city", params.ToCity)
+	if params.ToCity != nil {
+		q.Set("to_city", *params.ToCity)
 	}
-	if params.ToStreet != "" {
-		q.Set("to_street", params.ToStreet)
+	if params.ToStreet != nil {
+		q.Set("to_street", *params.ToStreet)
 	}
-	if params.TaxID != "" {
-		q.Set("tax_id", params.TaxID)
+	if params.TaxID != nil {
+		q.Set("tax_id", *params.TaxID)
 	}
-	if params.TaxCode != "" {
-		q.Set("tax_code", string(params.TaxCode))
+	if params.TaxCode != nil {
+		q.Set("tax_code", string(*params.TaxCode))
 	}
-	if params.TaxBehavior != "" {
-		q.Set("tax_behavior", string(params.TaxBehavior))
+	if params.TaxBehavior != nil {
+		q.Set("tax_behavior", string(*params.TaxBehavior))
 	}
-	if params.ProductType != "" {
-		q.Set("product_type", string(params.ProductType))
+	if params.ProductType != nil {
+		q.Set("product_type", string(*params.ProductType))
 	}
-	if params.Date != "" {
-		q.Set("date", params.Date)
+	if params.Date != nil {
+		q.Set("date", *params.Date)
 	}
 	if params.Amount != nil {
 		q.Set("amount", strconv.FormatFloat(*params.Amount, 'f', -1, 64))
 	}
-	if params.Currency != "" {
-		q.Set("currency", params.Currency)
+	if params.Currency != nil {
+		q.Set("currency", *params.Currency)
 	}
 
 	var resp TaxCalculateResponse
