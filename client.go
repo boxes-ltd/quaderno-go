@@ -29,6 +29,8 @@ type Client struct {
 	httpClient *http.Client
 	logLevel   LogLevel
 	userAgent  string
+	common     service
+	Taxes      *Taxes
 }
 
 type Option func(*Client)
@@ -57,6 +59,10 @@ func WithUserAgent(userAgent string) Option {
 	}
 }
 
+type service struct {
+	client *Client
+}
+
 func NewClient(apiKey, apiUrl string, opts ...Option) *Client {
 	c := &Client{
 		apiKey:     apiKey,
@@ -80,6 +86,8 @@ func NewClient(apiKey, apiUrl string, opts ...Option) *Client {
 		}
 		c.httpClient = &clonedClient
 	}
+	c.common.client = c
+	c.Taxes = (*Taxes)(&c.common)
 	return c
 }
 
