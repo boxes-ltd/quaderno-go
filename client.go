@@ -22,13 +22,25 @@ func defaultUserAgent() string {
 	return userAgent
 }
 
+type noCopy struct{}
+
+func (*noCopy) Lock()   {}
+func (*noCopy) Unlock() {}
+
+type service struct {
+	client *Client
+}
+
 type Client struct {
+	noCopy     noCopy
 	apiKey     string
 	apiUrl     string
 	apiVersion string
 	httpClient *http.Client
 	logLevel   LogLevel
 	userAgent  string
+	common     service
+	Taxes      *Taxes
 }
 
 type Option func(*Client)
@@ -80,6 +92,8 @@ func NewClient(apiKey, apiUrl string, opts ...Option) *Client {
 		}
 		c.httpClient = &clonedClient
 	}
+	c.common.client = c
+	c.Taxes = (*Taxes)(&c.common)
 	return c
 }
 
