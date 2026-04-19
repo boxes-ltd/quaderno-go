@@ -11,7 +11,9 @@ testing with API version 20260309.**
 
 ## Usage
 
-### Install
+### Installation
+
+This library requires Go 1.26 or later.
 
 ```shell
 go get github.com/boxes-ltd/quaderno-go
