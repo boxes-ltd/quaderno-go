@@ -11,6 +11,12 @@ testing with API version 20260309.**
 
 ## Usage
 
+### Install
+
+```shell
+go get github.com/boxes-ltd/quaderno-go
+```
+
 ### Create a client
 
 ```go
