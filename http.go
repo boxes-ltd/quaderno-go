@@ -12,7 +12,8 @@ import (
 type LogLevel int
 
 const (
-	LogLevelNone LogLevel = iota
+	LogLevelNone  LogLevel = 0
+	LogLevelBasic          = 1 << iota
 	LogLevelHeaders
 	LogLevelBody
 )
@@ -30,7 +31,7 @@ func (l *httpLogger) RoundTrip(req *http.Request) (*http.Response, error) {
 	start := time.Now()
 	log.Printf("--> %s %s", req.Method, req.URL)
 
-	if l.level >= LogLevelHeaders {
+	if l.level&LogLevelHeaders != 0 {
 		for k, v := range req.Header {
 			val := v[0]
 
@@ -46,11 +47,11 @@ func (l *httpLogger) RoundTrip(req *http.Request) (*http.Response, error) {
 		}
 	}
 
-	if l.level >= LogLevelBody && req.Body != nil {
+	if l.level&LogLevelBody != 0 && req.Body != nil {
 		bodyBytes, err := io.ReadAll(req.Body)
 		if err == nil && len(bodyBytes) > 0 {
 			req.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
-			log.Printf("\n%s", string(bodyBytes))
+			log.Println(strings.TrimSuffix(string(bodyBytes), "\n"))
 		}
 	}
 	log.Printf("--> END %s\n\n", req.Method)
@@ -64,17 +65,17 @@ func (l *httpLogger) RoundTrip(req *http.Request) (*http.Response, error) {
 	duration := time.Since(start)
 	log.Printf("<-- %s %s (%v)", res.Status, req.URL, duration)
 
-	if l.level >= LogLevelHeaders {
+	if l.level&LogLevelHeaders != 0 {
 		for k, v := range res.Header {
 			log.Printf("%s: %s", k, v[0])
 		}
 	}
 
-	if l.level >= LogLevelBody && res.Body != nil {
+	if l.level&LogLevelBody != 0 && res.Body != nil {
 		bodyBytes, ioErr := io.ReadAll(res.Body)
 		if ioErr == nil && len(bodyBytes) > 0 {
 			res.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
-			log.Printf("\n%s", string(bodyBytes))
+			log.Println(strings.TrimSuffix(string(bodyBytes), "\n"))
 		}
 	}
 	log.Printf("<-- END HTTP\n\n")

@@ -31,16 +31,26 @@ type service struct {
 	client *Client
 }
 
+type ApiError struct {
+	StatusCode int
+	Body       []byte
+}
+
+func (e *ApiError) Error() string {
+	return fmt.Sprintf("API error (status %d): %s", e.StatusCode, string(e.Body))
+}
+
 type Client struct {
-	noCopy     noCopy
-	apiKey     string
-	apiUrl     string
-	apiVersion string
-	httpClient *http.Client
-	logLevel   LogLevel
-	userAgent  string
-	common     service
-	Taxes      *Taxes
+	noCopy       noCopy
+	apiKey       string
+	apiUrl       string
+	apiVersion   string
+	httpClient   *http.Client
+	logLevel     LogLevel
+	userAgent    string
+	common       service
+	Taxes        *Taxes
+	Transactions *Transactions
 }
 
 type Option func(*Client)
@@ -94,6 +104,7 @@ func NewClient(apiKey, apiUrl string, opts ...Option) *Client {
 	}
 	c.common.client = c
 	c.Taxes = (*Taxes)(&c.common)
+	c.Transactions = (*Transactions)(&c.common)
 	return c
 }
 
@@ -138,7 +149,10 @@ func (c *Client) doRequest(ctx context.Context, method, path string, query url.V
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		bodyBytes, _ := io.ReadAll(resp.Body)
-		return fmt.Errorf("API error (status %d): %s", resp.StatusCode, string(bodyBytes))
+		return &ApiError{
+			StatusCode: resp.StatusCode,
+			Body:       bodyBytes,
+		}
 	}
 
 	if response != nil {
