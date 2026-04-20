@@ -46,12 +46,14 @@ type TaxCalculateResponse struct {
 	// Name of the tax.
 	Name *string `json:"name"`
 	// Tax rate applied.
-	Rate float64 `json:"rate"`
+	Rate *float64 `json:"rate"`
 	// Percentage of the subtotal used for calculating the tax amount. It's usually 100% but there are a few exceptions.
 	// For example, in Texas the taxable base is 80% for SaaS products.
 	TaxablePart *float64 `json:"taxable_part"`
 	// Country used for the tax calculation.
-	Country string `json:"country"`
+	Country *string `json:"country"`
+	// Currency used for the tax calculation.
+	Currency *string `json:"currency"`
 	// Region used for the tax calculation.
 	Region *string `json:"region"`
 	// Tax county. Only for US sales tax.
@@ -59,11 +61,11 @@ type TaxCalculateResponse struct {
 	// City used for the tax calculation.
 	City *string `json:"city"`
 	// The transaction's tax code used for calculating the tax rate.
-	TaxCode TaxCode `json:"tax_code"`
+	TaxCode *TaxCode `json:"tax_code"`
 	// Whether the price was considered inclusive of taxes or exclusive of taxes.
-	TaxBehavior TaxBehavior `json:"tax_behavior"`
+	TaxBehavior *TaxBehavior `json:"tax_behavior"`
 	// Whether the product is a good or a service.
-	ProductType ProductType `json:"product_type"`
+	ProductType *ProductType `json:"product_type"`
 	// The tax amount.
 	TaxAmount *float64 `json:"tax_amount"`
 	// Price before taxes.
@@ -71,7 +73,7 @@ type TaxCalculateResponse struct {
 	// Total price, including taxes.
 	TotalAmount *float64 `json:"total_amount"`
 	// Tax calculation status.
-	Status TaxStatus `json:"status"`
+	Status *TaxStatus `json:"status"`
 	// Help message complementing the tax calculation status.
 	Notice *string `json:"notice"`
 	// Only for jurisdictions that need to apply two tax rates (e.g. some Canadian provinces).
