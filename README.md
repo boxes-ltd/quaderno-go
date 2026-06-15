@@ -7,7 +7,7 @@ This is an unofficial library and is not affiliated with Quaderno.
 If you encounter a bug, please [open an issue](../../issues). Feature requests and PRs are welcome.
 
 **Note: API responses may differ from the public documentation. These client responses were adjusted based on sandbox
-testing with API version 20260309.**
+testing with API version 20241028.**
 
 ## Usage
 
@@ -32,7 +32,7 @@ c := quaderno.NewClient("API_KEY", "API_URL", options...)
 #### Use a specific API version
 
 ```go
-c := quaderno.NewClient("API_KEY", "API_URL", quaderno.WithApiVersion("20260309"))
+c := quaderno.NewClient("API_KEY", "API_URL", quaderno.WithApiVersion("20241028"))
 ```
 
 #### Use a custom HTTP client (rather than the default HTTP client)
