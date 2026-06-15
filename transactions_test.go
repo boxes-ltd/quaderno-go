@@ -3,6 +3,7 @@ package quaderno
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -42,10 +43,9 @@ func TestTransactionCreate_success(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	txType := TransactionTypeSale
 	c := NewClient("key", srv.URL)
 	resp, err := c.Transactions.Create(context.Background(), &TransactionCreateParams{
-		Type: &txType,
+		Type: new(TransactionTypeSale),
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -90,7 +90,7 @@ func TestTransactionCreate_propagatesApiError(t *testing.T) {
 
 	c := NewClient("key", srv.URL)
 	_, err := c.Transactions.Create(context.Background(), &TransactionCreateParams{})
-	if _, ok := err.(*ApiError); !ok {
+	if _, ok := errors.AsType[*ApiError](err); !ok {
 		t.Errorf("expected *ApiError, got %T: %v", err, err)
 	}
 }

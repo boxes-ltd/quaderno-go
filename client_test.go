@@ -3,6 +3,7 @@ package quaderno
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -146,7 +147,7 @@ func TestDoRequest_returnsApiErrorOnNon2xx(t *testing.T) {
 	c := NewClient("key", srv.URL)
 	err := c.doRequest(context.Background(), http.MethodGet, "/test", nil, nil, nil)
 
-	apiErr, ok := err.(*ApiError)
+	apiErr, ok := errors.AsType[*ApiError](err)
 	if !ok {
 		t.Fatalf("expected *ApiError, got %T", err)
 	}
