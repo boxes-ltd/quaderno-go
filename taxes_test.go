@@ -135,7 +135,15 @@ func TestTaxCalculate_propagatesApiError(t *testing.T) {
 
 	c := NewClient("key", srv.URL)
 	_, err := c.Taxes.Calculate(context.Background(), &TaxCalculateParams{ToCountry: new("DE")})
-	if _, ok := errors.AsType[*ApiError](err); !ok {
+	apiErr, ok := errors.AsType[*ApiError](err)
+	if !ok {
 		t.Errorf("expected *ApiError, got %T: %v", err, err)
+		return
+	}
+	if apiErr.StatusCode != http.StatusUnauthorized {
+		t.Errorf("StatusCode = %d, want %d", apiErr.StatusCode, http.StatusUnauthorized)
+	}
+	if string(apiErr.Body) != `{"error":"unauthorized"}` {
+		t.Errorf("Body = %q, want %q", string(apiErr.Body), `{"error":"unauthorized"}`)
 	}
 }

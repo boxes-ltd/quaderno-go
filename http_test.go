@@ -47,7 +47,11 @@ func TestHttpLogger_masksAuthorizationHeader(t *testing.T) {
 	if err != nil {
 		t.Fatalf("RoundTrip error: %v", err)
 	}
-	defer resp.Body.Close()
+	t.Cleanup(func() {
+		if err := resp.Body.Close(); err != nil {
+			t.Errorf("resp.Body.Close() error: %v", err)
+		}
+	})
 
 	output := logOutput.String()
 	if strings.Contains(output, "myapikey") {
@@ -73,7 +77,11 @@ func TestHttpLogger_logLevelNone_skipsLogging(t *testing.T) {
 	if err != nil {
 		t.Fatalf("RoundTrip error: %v", err)
 	}
-	defer resp.Body.Close()
+	t.Cleanup(func() {
+		if err := resp.Body.Close(); err != nil {
+			t.Errorf("resp.Body.Close() error: %v", err)
+		}
+	})
 	if !called {
 		t.Error("expected underlying transport to be called")
 	}
@@ -98,7 +106,11 @@ func TestHttpLogger_body_logsRequestBody(t *testing.T) {
 	if err != nil {
 		t.Fatalf("RoundTrip error: %v", err)
 	}
-	defer resp.Body.Close()
+	t.Cleanup(func() {
+		if err := resp.Body.Close(); err != nil {
+			t.Errorf("resp.Body.Close() error: %v", err)
+		}
+	})
 
 	if !strings.Contains(logOutput.String(), `{"hello":"world"}`) {
 		t.Errorf("expected request body in log output, got: %s", logOutput.String())
