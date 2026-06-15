@@ -2,6 +2,7 @@ package quaderno
 
 import (
 	"bytes"
+	"context"
 	"io"
 	"log"
 	"net/http"
@@ -28,8 +29,9 @@ func okResponse() *http.Response {
 
 func TestHttpLogger_masksAuthorizationHeader(t *testing.T) {
 	var logOutput bytes.Buffer
+	prev := log.Writer()
 	log.SetOutput(&logOutput)
-	t.Cleanup(func() { log.SetOutput(io.Discard) })
+	t.Cleanup(func() { log.SetOutput(prev) })
 
 	logger := &httpLogger{
 		level: LogLevelHeaders,
@@ -38,13 +40,14 @@ func TestHttpLogger_masksAuthorizationHeader(t *testing.T) {
 		}},
 	}
 
-	req, _ := http.NewRequest(http.MethodGet, "http://example.com/ping", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "http://example.com/ping", nil)
 	req.SetBasicAuth("myapikey", "x")
 
-	_, err := logger.RoundTrip(req)
+	resp, err := logger.RoundTrip(req)
 	if err != nil {
 		t.Fatalf("RoundTrip error: %v", err)
 	}
+	defer resp.Body.Close()
 
 	output := logOutput.String()
 	if strings.Contains(output, "myapikey") {
@@ -65,11 +68,12 @@ func TestHttpLogger_logLevelNone_skipsLogging(t *testing.T) {
 		}},
 	}
 
-	req, _ := http.NewRequest(http.MethodGet, "http://example.com/ping", nil)
-	_, err := logger.RoundTrip(req)
+	req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "http://example.com/ping", nil)
+	resp, err := logger.RoundTrip(req)
 	if err != nil {
 		t.Fatalf("RoundTrip error: %v", err)
 	}
+	defer resp.Body.Close()
 	if !called {
 		t.Error("expected underlying transport to be called")
 	}
@@ -77,8 +81,9 @@ func TestHttpLogger_logLevelNone_skipsLogging(t *testing.T) {
 
 func TestHttpLogger_body_logsRequestBody(t *testing.T) {
 	var logOutput bytes.Buffer
+	prev := log.Writer()
 	log.SetOutput(&logOutput)
-	t.Cleanup(func() { log.SetOutput(io.Discard) })
+	t.Cleanup(func() { log.SetOutput(prev) })
 
 	logger := &httpLogger{
 		level: LogLevelBody,
@@ -88,11 +93,12 @@ func TestHttpLogger_body_logsRequestBody(t *testing.T) {
 	}
 
 	body := `{"hello":"world"}`
-	req, _ := http.NewRequest(http.MethodPost, "http://example.com/test", strings.NewReader(body))
-	_, err := logger.RoundTrip(req)
+	req, _ := http.NewRequestWithContext(context.Background(), http.MethodPost, "http://example.com/test", strings.NewReader(body))
+	resp, err := logger.RoundTrip(req)
 	if err != nil {
 		t.Fatalf("RoundTrip error: %v", err)
 	}
+	defer resp.Body.Close()
 
 	if !strings.Contains(logOutput.String(), `{"hello":"world"}`) {
 		t.Errorf("expected request body in log output, got: %s", logOutput.String())

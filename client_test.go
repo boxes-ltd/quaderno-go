@@ -82,7 +82,9 @@ func TestDoRequest_setsAuthAndHeaders(t *testing.T) {
 	defer srv.Close()
 
 	c := NewClient("mykey", srv.URL, WithApiVersion("20991231"), WithUserAgent("test-agent"))
-	_ = c.doRequest(context.Background(), http.MethodGet, "/ping", nil, nil, nil)
+	if err := c.doRequest(context.Background(), http.MethodGet, "/ping", nil, nil, nil); err != nil {
+		t.Fatalf("doRequest() unexpected error: %v", err)
+	}
 
 	user, pass, ok := capturedReq.BasicAuth()
 	if !ok {
@@ -113,7 +115,9 @@ func TestDoRequest_setsContentTypeForBody(t *testing.T) {
 	defer srv.Close()
 
 	c := NewClient("key", srv.URL)
-	_ = c.doRequest(context.Background(), http.MethodPost, "/test", nil, map[string]string{"k": "v"}, nil)
+	if err := c.doRequest(context.Background(), http.MethodPost, "/test", nil, map[string]string{"k": "v"}, nil); err != nil {
+		t.Fatalf("doRequest() unexpected error: %v", err)
+	}
 
 	if got := capturedReq.Header.Get("Content-Type"); got != "application/json" {
 		t.Errorf("Content-Type = %q, want application/json", got)
