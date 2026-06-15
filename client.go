@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-const DefaultAPIVersion = "20260309"
+const DefaultAPIVersion = "20241028"
 
 func defaultUserAgent() string {
 	userAgent := "quaderno-go"
